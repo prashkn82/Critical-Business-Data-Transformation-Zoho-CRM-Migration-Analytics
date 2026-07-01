@@ -27,38 +27,10 @@ The solution involved building a robust SQL-based ETL pipeline to extract, clean
 | Zoho Desk | Customer Support Integration |
 | CSV Files | Migration Data Exchange |
 
-
 📊 Project Architecture
 
-Legacy Database
-      │
-      ▼
-      
-SQL Extraction
-      │
-      ▼
-      
-Data Cleaning & Standardisation
-      │
-      ▼
-      
-Schema Mapping
-      │
-      ▼
-      
-CSV Generation
-      │
-      ▼
-      
-Zoho CRM Migration
-      │
-      ▼
-      
-Zoho Analytics
-      │
-      ├────────► Zoho Books
-      │
-      └────────► Zoho Desk
+<img width="572" height="541" alt="image" src="https://github.com/user-attachments/assets/0d11190b-9f42-447a-a859-08c4e6d9c6ae" />
+
 
 
 ⚙️ ETL Workflow
