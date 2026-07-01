@@ -32,7 +32,6 @@ The solution involved building a robust SQL-based ETL pipeline to extract, clean
 
 Legacy Database
       │
-      
       ▼
 SQL Extraction
       │
