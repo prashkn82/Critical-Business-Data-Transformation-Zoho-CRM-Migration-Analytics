@@ -114,7 +114,7 @@ This integration enabled:
 - Zoho Analytics Reports
 - Data Quality Reports
 
-📊** Business Impact**
+📊**Business Impact**
 
 - Streamlined customer data migration process.
 - Improved data accuracy and consistency.
