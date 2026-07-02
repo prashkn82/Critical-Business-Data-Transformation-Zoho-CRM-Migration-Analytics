@@ -6,7 +6,7 @@ This project focuses on designing and implementing end-to-end data integration a
 
 The solution involved building a robust SQL-based ETL pipeline to extract, cleanse, transform, validate, and migrate customer and sales data into Zoho CRM and connected Zoho applications, ensuring high data quality, consistency, and zero data loss across systems.1
 
-🎯 Objectives
+🎯 **Objectives**
 
 - Migrate customer and sales data from legacy systems to Zoho CRM.
 - Clean and standardize inconsistent data before migration.
@@ -14,9 +14,9 @@ The solution involved building a robust SQL-based ETL pipeline to extract, clean
 - Integrate multiple Zoho applications for centralized reporting.
 - Automate data quality validation and reporting.
 
----
 
-🛠️ Tech Stack
+
+🛠️ **Tech Stack**
 
 | Technology | Purpose |
 |------------|---------|
@@ -28,7 +28,7 @@ The solution involved building a robust SQL-based ETL pipeline to extract, clean
 | Zoho Desk | Customer Support Integration |
 | CSV Files | Migration Data Exchange |
 
-📊 Project Architecture
+📊 **Project Architecture**
 
 <img width="412" height="532" alt="image" src="https://github.com/user-attachments/assets/d2898141-9f95-49c7-b080-036cfb6b1cbc" />
 
