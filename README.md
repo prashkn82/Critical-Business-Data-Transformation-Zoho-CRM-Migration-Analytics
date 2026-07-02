@@ -32,14 +32,14 @@ The solution involved building a robust SQL-based ETL pipeline to extract, clean
 <img width="412" height="532" alt="image" src="https://github.com/user-attachments/assets/d2898141-9f95-49c7-b080-036cfb6b1cbc" />
 
 
-⚙️ ETL Workflow
+⚙️ **ETL Workflow**
 
-Data Extraction
+**1. Data Extraction**
 
 - Extracted customer and sales records from legacy databases using SQL.
 - Processed over **80,000+ records**.
 
-2. Data Cleansing
+**2. Data Cleansing**
 
 - Removed duplicate records.
 - Standardised customer information.
