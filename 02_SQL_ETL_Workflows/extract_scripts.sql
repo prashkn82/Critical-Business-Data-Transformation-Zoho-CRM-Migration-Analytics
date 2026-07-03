@@ -1,7 +1,7 @@
 /* ============================================================
    EXTRACT SCRIPTS – LEGACY DATABASE
    Purpose: Extract raw data from legacy tables for ETL pipeline
-   Author: Prashanth
+   Author:  Prashanth
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -9,14 +9,16 @@
    ------------------------------------------------------------ */
 SELECT
     customer_id,
-    TRIM(first_name) AS first_name,
-    TRIM(last_name) AS last_name,
-    TRIM(email) AS email,
-    TRIM(phone) AS phone,
+    TRIM(first_name)  AS first_name,
+    TRIM(last_name)   AS last_name,
+    TRIM(email)       AS email,
+    TRIM(phone)       AS phone,
     address,
     created_at
-FROM customers
-WHERE customer_id IS NOT NULL;
+FROM
+    customers
+WHERE
+    customer_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -25,14 +27,16 @@ WHERE customer_id IS NOT NULL;
 SELECT
     contact_id,
     customer_id,
-    TRIM(first_name) AS first_name,
-    TRIM(last_name) AS last_name,
-    TRIM(email) AS email,
-    TRIM(phone) AS phone,
+    TRIM(first_name)  AS first_name,
+    TRIM(last_name)   AS last_name,
+    TRIM(email)       AS email,
+    TRIM(phone)       AS phone,
     role,
     is_primary
-FROM customer_contacts
-WHERE contact_id IS NOT NULL;
+FROM
+    customer_contacts
+WHERE
+    contact_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -47,8 +51,10 @@ SELECT
     price_ttc,
     tax_code,
     active_flag
-FROM products
-WHERE product_id IS NOT NULL;
+FROM
+    products
+WHERE
+    product_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -62,8 +68,10 @@ SELECT
     total_ht,
     total_ttc,
     payment_mode
-FROM orders
-WHERE order_id IS NOT NULL;
+FROM
+    orders
+WHERE
+    order_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -77,8 +85,10 @@ SELECT
     unit_price_ht,
     unit_price_ttc,
     discount
-FROM order_items
-WHERE order_item_id IS NOT NULL;
+FROM
+    order_items
+WHERE
+    order_item_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -93,8 +103,10 @@ SELECT
     priority,
     created_at,
     closed_at
-FROM tickets
-WHERE ticket_id IS NOT NULL;
+FROM
+    tickets
+WHERE
+    ticket_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -106,8 +118,10 @@ SELECT
     invoice_date,
     amount,
     payment_status
-FROM invoices
-WHERE invoice_id IS NOT NULL;
+FROM
+    invoices
+WHERE
+    invoice_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -120,8 +134,10 @@ SELECT
     payment_mode,
     payment_date,
     reference_number
-FROM payments
-WHERE payment_id IS NOT NULL;
+FROM
+    payments
+WHERE
+    payment_id IS NOT NULL;
 
 
 /* ------------------------------------------------------------
@@ -131,19 +147,35 @@ SELECT
     entity_id,
     raw_field_data,
     updated_at
-FROM raw_custom_fields
-WHERE raw_field_data IS NOT NULL;
+FROM
+    raw_custom_fields
+WHERE
+    raw_field_data IS NOT NULL;
 
 
 /* ------------------------------------------------------------
    10. Extract Lookup Tables
    ------------------------------------------------------------ */
-SELECT * FROM tax_codes;
-SELECT * FROM product_categories;
-SELECT * FROM ticket_status;
-SELECT * FROM payment_methods;
+SELECT
+    *
+FROM
+    tax_codes;
+
+SELECT
+    *
+FROM
+    product_categories;
+
+SELECT
+    *
+FROM
+    ticket_status;
+
+SELECT
+    *
+FROM
+    payment_methods;
 
 /* ============================================================
    END OF EXTRACT SCRIPTS
    ============================================================ */
-
