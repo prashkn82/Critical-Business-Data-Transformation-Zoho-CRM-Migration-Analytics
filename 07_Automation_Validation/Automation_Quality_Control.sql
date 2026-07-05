@@ -1,185 +1,262 @@
-Automated Quality Checks SQL
+-- ============================================================================
+-- Automation Quality Control - Automated Data Quality Checks (SQL)
+-- Repository : prashkn82/Data-Analytics-in-Zoho
+-- Path       : 07_Automation_Validation/Automation_Quality_Control.sql
+-- Purpose    : SQL checks to validate, standardize and log issues during ETL
+-- Notes      : These queries are intended as templates — adapt dialect-specific
+--              functions (REGEXP, TIMESTAMPDIFF, etc.) to your target engine.
+-- ============================================================================
 
-1. Overview
+-- ============================================================================
+-- 0. Table of Contents
+--   1. Overview
+--   2. Duplicate Detection
+--   3. Missing / NULL Value Checks
+--   4. Invalid Format Checks
+--   5. Referential Integrity Checks
+--   6. Business Rule Validation
+--   7. Standardization Checks
+--   8. Anomaly Detection
+--   9. Error Logging Templates
+-- ============================================================================
 
-This file contains SQL scripts used to perform automated data‑quality checks during the ETL process. These checks ensure that legacy data is clean, standardized, validated, and ready for migration into Zoho CRM, Books, Desk, and Analytics.
+-- ============================================================================
+-- 1. OVERVIEW
+-- ============================================================================
 
-The checks cover duplicates, missing values, invalid formats, referential integrity, and business‑rule validation.
+-- Automated data-quality checks for staging tables used in the ETL pipeline.
+-- These checks cover:
+--   - duplicates
+--   - missing/null values
+--   - invalid formats
+--   - referential integrity
+--   - business-rule validation
+--   - standardization
+--   - anomaly detection
+--
+-- Use these queries in your validation job, capture results, and insert into
+-- an error/logging table for remediation and auditing.
 
-2. Duplicate Detection
+-- ============================================================================
+-- 2. DUPLICATE DETECTION
+-- ============================================================================
 
-2.1 Duplicate Customers (Email + Phone)
-
-SELECT 
+-- 2.1 Duplicate Customers by Email + Phone
+SELECT
     Email,
     Phone,
-    COUNT(*) AS Duplicate_Count
+    COUNT(*) AS duplicate_count
 FROM staging_customers
 GROUP BY Email, Phone
-HAVING COUNT(*) > 1;
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
 
-2.2 Duplicate Products (SKU)
-
-SELECT 
+-- 2.2 Duplicate Products by SKU
+SELECT
     SKU,
-    COUNT(*) AS Duplicate_SKU
+    COUNT(*) AS duplicate_count
 FROM staging_products
 GROUP BY SKU
-HAVING COUNT(*) > 1;
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
 
-2.3 Duplicate Tickets (Subject + Created_Time)
-
-SELECT 
+-- 2.3 Duplicate Tickets by Subject + Created_Time
+SELECT
     Subject,
     Created_Time,
-    COUNT(*) AS Duplicate_Tickets
+    COUNT(*) AS duplicate_count
 FROM staging_tickets
 GROUP BY Subject, Created_Time
-HAVING COUNT(*) > 1;
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
 
-3. Missing or Null Value Checks
+-- ============================================================================
+-- 3. MISSING OR NULL VALUE CHECKS
+-- ============================================================================
 
-3.1 Missing Customer Emails
-
+-- 3.1 Missing Customer Emails
 SELECT *
 FROM staging_customers
 WHERE Email IS NULL OR Email = '';
 
-3.2 Missing Product Names
-
+-- 3.2 Missing Product Names
 SELECT *
 FROM staging_products
 WHERE Product_Name IS NULL OR Product_Name = '';
 
-3.3 Missing Order Dates
-
+-- 3.3 Missing Order Dates
 SELECT *
 FROM staging_orders
 WHERE Order_Date IS NULL;
 
-4. Invalid Format Checks
+-- ============================================================================
+-- 4. INVALID FORMAT CHECKS
+-- ============================================================================
 
-4.1 Invalid Email Format
-
+-- 4.1 Invalid Email Format (simple check - adapt regex per dialect)
 SELECT *
 FROM staging_customers
-WHERE Email NOT LIKE '%@%';
+WHERE Email IS NOT NULL
+  AND Email NOT LIKE '%@%';
 
-4.2 Invalid Phone Numbers (Non‑Numeric)
-
+-- 4.2 Invalid Phone Numbers (non-numeric characters)
+-- Use a strict numeric check: phone should consist only of digits (one or more)
 SELECT *
 FROM staging_customers
-WHERE Phone REGEXP '[^0-9]';
+WHERE Phone IS NOT NULL
+  AND Phone NOT REGEXP '^[0-9]+$';
 
-4.3 Invalid Dates
-
+-- 4.3 Invalid Dates (ISO yyyy-mm-dd)
 SELECT *
 FROM staging_orders
-WHERE Order_Date NOT REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+WHERE Order_Date IS NOT NULL
+  AND Order_Date NOT REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
 
-5. Referential Integrity Checks
+-- ============================================================================
+-- 5. REFERENTIAL INTEGRITY CHECKS
+-- ============================================================================
 
-5.1 Orders Without Valid Customers
-
+-- 5.1 Orders without valid Customers
 SELECT o.*
 FROM staging_orders o
-LEFT JOIN staging_customers c ON o.Customer_ID = c.Customer_ID
+LEFT JOIN staging_customers c
+  ON o.Customer_ID = c.Customer_ID
 WHERE c.Customer_ID IS NULL;
 
-5.2 Order Items Without Valid Products
-
+-- 5.2 Order Items without valid Products
 SELECT oi.*
 FROM staging_order_items oi
-LEFT JOIN staging_products p ON oi.Product_ID = p.Product_ID
+LEFT JOIN staging_products p
+  ON oi.Product_ID = p.Product_ID
 WHERE p.Product_ID IS NULL;
 
-5.3 Tickets Without Valid Contacts
-
+-- 5.3 Tickets without valid Contacts
 SELECT t.*
 FROM staging_tickets t
-LEFT JOIN staging_contacts c ON t.Contact_ID = c.Contact_ID
+LEFT JOIN staging_contacts c
+  ON t.Contact_ID = c.Contact_ID
 WHERE c.Contact_ID IS NULL;
 
-6. Business Rule Validation
+-- ============================================================================
+-- 6. BUSINESS RULE VALIDATION
+-- ============================================================================
 
-6.1 Negative Invoice Amounts
-
+-- 6.1 Negative Invoice Amounts
 SELECT *
 FROM staging_invoices
 WHERE Total < 0;
 
-6.2 Invalid Deal Stages
-
+-- 6.2 Invalid Deal Stages (allowed set)
 SELECT *
 FROM staging_deals
-WHERE Stage NOT IN ('New', 'In Progress', 'Closed Won', 'Closed Lost');
+WHERE Stage IS NOT NULL
+  AND Stage NOT IN ('New', 'In Progress', 'Closed Won', 'Closed Lost');
 
-6.3 Invalid Ticket Status
-
+-- 6.3 Invalid Ticket Status (allowed set)
 SELECT *
 FROM staging_tickets
-WHERE Status NOT IN ('OPEN', 'CLOSED', 'PENDING');
+WHERE Status IS NOT NULL
+  AND Status NOT IN ('OPEN', 'CLOSED', 'PENDING');
 
-7. Standardization Checks
+-- ============================================================================
+-- 7. STANDARDIZATION CHECKS
+-- ============================================================================
 
-7.1 Non‑Lowercase Emails
-
+-- 7.1 Non-lowercase emails (email should be stored lowercase)
 SELECT *
 FROM staging_customers
-WHERE Email != LOWER(Email);
+WHERE Email IS NOT NULL
+  AND Email <> LOWER(Email);
 
-7.2 Non‑Uppercase Product Names
-
+-- 7.2 Non-uppercase product names (if your standard is UPPERCASE)
 SELECT *
 FROM staging_products
-WHERE Product_Name != UPPER(Product_Name);
+WHERE Product_Name IS NOT NULL
+  AND Product_Name <> UPPER(Product_Name);
 
-7.3 Non‑ISO Date Formats
-
+-- 7.3 Non-ISO date formats (duplicate of 4.3; kept for clarity)
 SELECT *
 FROM staging_orders
-WHERE Order_Date NOT REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
+WHERE Order_Date IS NOT NULL
+  AND Order_Date NOT REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$';
 
-8. Anomaly Detection
+-- ============================================================================
+-- 8. ANOMALY DETECTION
+-- ============================================================================
 
-8.1 Sudden Drop in Daily Orders
+-- Note: These queries produce history and counts. Follow-up logic is needed to
+-- detect "sudden drop" or "spike" by comparing rolling averages or thresholds.
 
-SELECT 
+-- 8.1 Daily orders time series (use to calculate drops)
+SELECT
     Order_Date,
-    COUNT(*) AS Daily_Orders
+    COUNT(*) AS daily_orders
 FROM staging_orders
 GROUP BY Order_Date
 ORDER BY Order_Date;
 
-8.2 Spike in Refunds
-
-SELECT 
+-- 8.2 Spike in refunds (daily)
+SELECT
     Refund_Date,
-    COUNT(*) AS Refund_Count
+    COUNT(*) AS refund_count
 FROM staging_refunds
 GROUP BY Refund_Date
 ORDER BY Refund_Date;
 
-8.3 Missing Transactions for a Day
+-- 8.3 Missing transactions for a day
+-- Note: GROUP BY ... HAVING COUNT(*) = 0 will not return any rows.
+-- To detect days with zero transactions, compare against a calendar table or
+-- generate a date series and LEFT JOIN to staging_orders.
+-- Example (pseudo-SQL; adapt to your engine if you have a calendar table `calendar_dates`):
+-- SELECT d.calendar_date
+-- FROM calendar_dates d
+-- LEFT JOIN (
+--   SELECT Order_Date, COUNT(*) AS cnt FROM staging_orders GROUP BY Order_Date
+-- ) o ON d.calendar_date = o.Order_Date
+-- WHERE d.calendar_date BETWEEN '2023-01-01' AND '2023-01-31'
+--   AND COALESCE(o.cnt, 0) = 0;
 
-SELECT 
-    Order_Date
-FROM staging_orders
-GROUP BY Order_Date
-HAVING COUNT(*) = 0;
+-- ============================================================================
+-- 9. ERROR LOGGING TEMPLATES
+-- ============================================================================
 
-9. Error Logging Templates
+-- 9.1 Insert an error into the ETL error log (parameterize values)
+-- Replace :record_id and :error_description with bind parameters in your ETL tool.
+INSERT INTO etl_error_log (
+    Record_ID,
+    Module,
+    Error_Type,
+    Error_Description,
+    Detected_At
+) VALUES (
+    :record_id,           -- e.g. primary key or composite identifier
+    'Customers',          -- Module name
+    'Invalid Email',      -- Error type (categorize as needed)
+    :error_description,   -- e.g. 'Email missing @ symbol'
+    CURRENT_TIMESTAMP
+);
 
-9.1 Insert Errors into Log Table
+-- 9.2 Insert skipped records (parameterized)
+INSERT INTO etl_skipped_records (
+    Record_ID,
+    Module,
+    Reason,
+    Skipped_At
+) VALUES (
+    :record_id,
+    'Orders',
+    'Missing Customer Reference',
+    CURRENT_TIMESTAMP
+);
 
-INSERT INTO etl_error_log (Record_ID, Module, Error_Type, Error_Description)
-VALUES (?, 'Customers', 'Invalid Email', 'Email missing @ symbol');
+-- ============================================================================
+-- 10. CONCLUSION & NEXT STEPS
+-- ============================================================================
 
-9.2 Insert Skipped Records
-
-INSERT INTO etl_skipped_records (Record_ID, Module, Reason)
-VALUES (?, 'Orders', 'Missing Customer Reference');
-
-10. Conclusion
-
-These automated SQL quality checks ensure that all data entering the ETL pipeline is validated, standardized, and ready for migration. They help maintain high data accuracy, prevent migration failures, and support clean reporting in Zoho Analytics.
+-- These queries provide a comprehensive baseline of checks to include in your
+-- automated validation stage. Recommended next steps:
+--   - Hook these into your ETL orchestration (Airflow, dbt, stored proc, etc.)
+--   - Capture output into error tables and build dashboards for remediation
+--   - Add thresholds and anomaly detection logic (rolling averages, z-scores)
+--   - Add indexes on staging join keys for faster referential queries
+-- ============================================================================
