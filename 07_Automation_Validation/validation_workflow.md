@@ -1,4 +1,4 @@
-1. Overview
+Overview
 This document defines the complete Validation Workflow used during the ETL and migration process.
 It ensures that all data extracted from legacy systems is accurate, complete, standardized, and ready for loading into Zoho CRM, Books, Desk, and Analytics.
 
