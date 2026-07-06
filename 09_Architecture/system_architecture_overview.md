@@ -1,221 +1,326 @@
-System Architecture Overview — Legacy → Zoho (CRM, Books, Desk, Analytics)
+# System Architecture Overview
+## Legacy → Zoho (CRM, Books, Desk, Analytics)
 
+**Version:** 1.0  
+**Last Updated:** 2026-07-06  
+**Author:** Data Engineering / Migration Team
 
+---
 
-1. Purpose
+## Table of Contents
 
-This document provides a high‑level architecture overview of the complete data migration and analytics system implemented during the internship project. It explains how data flows from legacy systems through ETL pipelines into Zoho CRM, Books, Desk, and Analytics.
+1. [Purpose](#purpose)
+2. [Architecture Diagram](#architecture-diagram)
+3. [Components Overview](#components-overview)
+4. [Data Flow Summary](#data-flow-summary)
+5. [Technology Stack](#technology-stack)
+6. [Security & Access Controls](#security--access-controls)
+7. [File Location](#file-location)
+8. [Next Steps](#next-steps)
+
+---
+
+## Purpose
+
+This document provides a high-level architecture overview of the complete data migration and analytics system implemented during the internship project. It explains how data flows from legacy systems through ETL pipelines into Zoho applications and finally into analytics dashboards.
+
+### Key Objectives
 
 This architecture ensures:
 
-Standardized and validated data movement
+- ✅ Standardized and validated data movement
+- ✅ Modular ETL workflows
+- ✅ Automated quality checks
+- ✅ Seamless integration across Zoho applications
+- ✅ Scalable analytics and reporting
+
+---
+
+## Architecture Diagram
+
+### High-Level System Flow
+
+```
+┌────────────────────────────────────┐
+│       Legacy Systems               │
+│  (DB, Excel, CSV, Spreadsheets)    │
+└─────────────────┬──────────────────┘
+                  │
+                  │ Extraction
+                  ▼
+┌────────────────────────────────────┐
+│     Staging Layer (Raw Data)       │
+│  (MySQL / PostgreSQL)              │
+│  • Raw data storage                │
+│  • Intermediate tables             │
+│  • Validation logs                 │
+└─────────────────┬──────────────────┘
+                  │
+                  │ Cleansing & Standardization
+                  ▼
+┌────────────────────────────────────┐
+│    ETL Layer (Transformation)      │
+│  (SQL Scripts & Stored Procedures) │
+│  • Data deduplication              │
+│  • Format standardization          │
+│  • Referential integrity checks    │
+└─────────────────┬──────────────────┘
+                  │
+                  │ Mapping & Rules Engine
+                  ▼
+┌────────────────────────────────────┐
+│    Mapping Engine                  │
+│  (Legacy → Zoho Field Rules)       │
+│  • Field mapping                   │
+│  • Lookup resolution               │
+│  • Business rule enforcement       │
+└─────────────────┬──────────────────┘
+                  │
+                  │ Load & Import
+                  ▼
+┌─────────────────────────────────────────────────┐
+│       Zoho Applications                         │
+│  ┌──────────┬──────────┬──────────┬──────────┐  │
+│  │   CRM    │  Books   │  Desk    │Analytics │  │
+│  └──────────┴──────────┴──────────┴──────────┘  │
+└─────────────────┬───────────────────────────────┘
+                  │
+                  │ Analytics & Reporting
+                  ▼
+┌────────────────────────────────────┐
+│    Analytics & Dashboards          │
+│  • KPI monitoring                  │
+│  • Sales dashboards                │
+│  • Inventory reports               │
+│  • Migration reconciliation        │
+└────────────────────────────────────┘
+```
+
+---
+
+## Components Overview
+
+### 3.1 Legacy Systems
+
+| Component | Description |
+|-----------|-------------|
+| **SQL Database** | Customer, Item, Invoice tables |
+| **Excel/CSV Files** | Unstructured data exports |
+| **Other Sources** | Spreadsheets, manual records |
+
+### 3.2 Staging Layer
+
+| Component | Purpose |
+|-----------|---------|
+| **Raw Data Storage** | Stores extracted data as-is |
+| **Intermediate Tables** | Holds data during cleansing |
+| **Validation Logs** | Tracks issues and exceptions |
+
+### 3.3 ETL Layer (SQL Workflows)
+
+| Function | Activities |
+|----------|-----------|
+| **Standardization** | Dates, names, currency, formats |
+| **Deduplication** | Identify and flag duplicate records |
+| **Cleansing** | Null value handling, invalid data removal |
+| **Validation** | Referential integrity, data quality checks |
+| **Transformation** | Apply business rules and mappings |
+
+### 3.4 Mapping Engine
+
+| Component | Function |
+|-----------|----------|
+| **Field Mapping Rules** | Legacy → Zoho field translations |
+| **Lookup Resolution** | Link customer, item, account records |
+| **Business Rules** | Enforce organizational logic |
+| **Exception Handling** | Flag unmapped or invalid data |
 
-Modular ETL workflows
+### 3.5 Zoho Applications
 
-Automated quality checks
+| Application | Modules | Purpose |
+|-------------|---------|---------|
+| **CRM** | Leads, Contacts, Accounts | Customer relationship management |
+| **Books** | Items, Invoices, Payments | Financial & inventory management |
+| **Desk** | Tickets, Customer Interactions | Customer support & service |
+| **Analytics** | Dashboards, KPIs, Reports | Business intelligence |
 
-Seamless integration across Zoho applications
+### 3.6 Automation & Validation Layer
 
-Scalable analytics and reporting
+| Component | Role |
+|-----------|------|
+| **SQL Validation Scripts** | Automated data quality checks |
+| **Quality Gates** | Block invalid data from proceeding |
+| **Exception Reporting** | Alert team to issues |
+| **Audit Logging** | Track all migration activities |
 
-2. Architecture Diagram (Conceptual)
+### 3.7 Analytics Layer
+
+| Output | Content |
+|--------|---------|
+| **Zoho Analytics Dashboards** | Real-time KPI monitoring |
+| **Custom Reports** | Business-specific insights |
+| **Reconciliation Reports** | Before/after migration comparison |
 
-┌────────────────────┐
-│   Legacy Systems    │
-│ (DB, Excel, CSV)    │
-└─────────┬──────────┘
-          │ Extraction
-          ▼
-┌────────────────────┐
-│     Staging DB      │
-│ (Raw + Cleaned Data)│
-└─────────┬──────────┘
-          │ Transformation (SQL ETL)
-          ▼
-┌────────────────────┐
-│   Mapping Engine    │
-│ (Field Rules, Lookups)│
-└─────────┬──────────┘
-          │ Load
-          ▼
-┌──────────────────────────────────────────────┐
-│                Zoho Applications              │
-│  CRM | Books | Desk | Analytics               │
-└─────────┬────────────────────────────────────┘
-          │ Sync + API Integration
-          ▼
-┌────────────────────┐
-│   Analytics Layer   │
-│ Dashboards & Reports│
-└────────────────────┘
+---
 
-3. Components Overview
+## Data Flow Summary
 
-3.1 Legacy Systems
+### Step 1: Extraction
+
+```
+Legacy DB (SQL)           ──┐
+Excel/CSV Files           ──┼──→ Staging Database
+Spreadsheets & Other      ──┘
+```
+
+**Activities:**
+- Extract raw data from all sources
+- Load into staging layer
+- Preserve original values for audit trail
+
+---
 
-SQL Database (Customer, Item, Invoice tables)
+### Step 2: Cleansing & Standardization
+
+```
+Raw Staged Data  ──→  [Null Checks]      ──┐
+                      [Deduplication]     ──┼──→  Cleaned Data
+                      [Format Std.]       ──┘
+```
+
+**Activities:**
+- Handle null/empty values
+- Remove duplicate records
+- Standardize formats (dates, phone, email)
+
+---
+
+### Step 3: Mapping & Transformation
+
+```
+Cleaned Data  ──→  [Apply Mapping Rules]  ──→  [Apply Business Rules]  ──→  Transformed Data
+```
 
-Excel/CSV exports
+**Activities:**
+- Apply legacy-to-Zoho field mappings
+- Resolve lookups (customer, item, account)
+- Enforce organizational business logic
 
-Unstructured data inputs
+---
 
-3.2 Staging Layer
+### Step 4: Load into Zoho
 
-Stores raw extracted data
+```
+Transformed Data  ──→  [Import Templates]  ──┐
+                                            ├──→  Zoho CRM
+                                            ├──→  Zoho Books
+                                            ├──→  Zoho Desk
+                                            └──→  Zoho Analytics
+```
 
-Intermediate tables for cleansing
+**Activities:**
+- Generate Zoho-compatible import files
+- Load data via API or bulk import
+- Track import success/failure
 
-Used for validation and reconciliation
+---
 
-3.3 ETL Layer (SQL Workflows)
+### Step 5: Validation & QA
 
-Standardization (dates, names, currency)
+```
+Zoho Data  ──→  [Automated SQL Checks]  ──────┐
+                [Manual Review]         ──────┼──→  Validation Report
+                [Exception Handling]    ──────┘
+```
 
-Deduplication
+**Activities:**
+- Run automated validation scripts
+- Manual review of flagged records
+- Generate validation reports
+- Track remediation progress
 
-Referential integrity checks
+---
 
-Transformation rules
+### Step 6: Analytics & Reporting
 
-3.4 Mapping Engine
+```
+Zoho Data  ──→  Zoho Analytics  ──→  ┌─────────────────────────┐
+                                    │  Customer Master Reports │
+                                    │  Sales Dashboards       │
+                                    │  Inventory Reports      │
+                                    │  Migration Summary      │
+                                    └─────────────────────────┘
+```
 
-Legacy → Zoho field mapping
+**Activities:**
+- Create KPI dashboards
+- Generate business reports
+- Monitor data quality post-migration
+- Track migration success metrics
 
-Lookup resolution (Customer, Item)
+---
 
-Business rule enforcement
+## Technology Stack
 
-3.5 Zoho Applications
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Source Systems** | SQL Database, Excel, CSV | Legacy data storage |
+| **Staging** | MySQL / PostgreSQL | Intermediate data repository |
+| **ETL Processing** | SQL Scripts, Stored Procedures | Data transformation |
+| **Mapping Engine** | Rule-based Logic Engine | Field mapping & validation |
+| **Target Systems** | Zoho CRM, Books, Desk, Analytics | Cloud applications |
+| **Automation** | SQL, Batch Scripts | Validation & quality checks |
+| **Analytics** | Zoho Analytics | Dashboards & reporting |
+| **Version Control** | Git / GitHub | Document & code versioning |
 
-CRM: Leads, Contacts, Accounts
+---
 
-Books: Items, Invoices, Payments
+## Security & Access Controls
 
-Desk: Tickets, Customer interactions
+### Authentication & Authorization
 
-Analytics: Dashboards, KPIs, reports
+| Control | Implementation |
+|---------|----------------|
+| **Role-Based Access** | Admin, Engineer, Analyst roles |
+| **Data Staging** | Restricted write access to production |
+| **API Keys** | Secure storage of Zoho credentials |
+| **Audit Logging** | Track all migration activities |
 
-3.6 Automation & Validation Layer
+### Data Protection
 
-SQL validation scripts
+| Measure | Details |
+|---------|---------|
+| **Data Masking** | Sensitive PII masked in non-prod |
+| **Backup & Recovery** | Maintain staging backups |
+| **Version Control** | All scripts tracked in Git |
+| **Logging & Monitoring** | Comprehensive activity logs |
 
-Automated quality checks
+---
 
-Exception reporting
+## File Location
 
-3.7 Analytics Layer
-
-Zoho Analytics dashboards
-
-KPI monitoring
-
-Migration reconciliation reports
-
-4. Data Flow Summary
-
-Step 1 — Extraction
-
-Legacy DB → Staging
-
-Excel/CSV → Staging
-
-Step 2 — Cleansing
-
-Null checks
-
-Duplicate removal
-
-Standardization
-
-Step 3 — Mapping
-
-Field mapping rules applied
-
-Lookup resolution
-
-Step 4 — Load into Zoho
-
-CRM import files
-
-Books import templates
-
-Desk ticket migration
-
-Step 5 — Validation
-
-Automated SQL checks
-
-Manual review for exceptions
-
-Step 6 — Analytics
-
-Dashboards for:
-
-Customer master
-
-Sales
-
-Inventory
-
-Migration reconciliation
-
-5. Technology Stack
-
-Layer
-
-Tools / Platforms
-
-Extraction
-
-SQL, Excel, CSV
-
-Staging
-
-MySQL / PostgreSQL
-
-ETL
-
-SQL scripts, stored procedures
-
-Mapping
-
-Rule‑based mapping engine
-
-Zoho Apps
-
-CRM, Books, Desk, Analytics
-
-Automation
-
-SQL validation scripts
-
-Analytics
-
-Zoho Analytics dashboards
-
-6. Security & Access Controls
-
-Role‑based access (Admin, Engineer, Analyst)
-
-Restricted write access to production
-
-Audit logs for migration activities
-
-Data masking for sensitive fields
-
-7. File Location
-
+```
 09_Architecture/
-   └── system_architecture_overview.md
+└── system_architecture_overview.md
+```
 
-8. Next Steps
+### Related Documentation
 
-Choose the next file to generate:
+- `08_Sample_Data/sample_validation_reports.md` — Validation report examples
+- `sample_cleaned_data.md` — (Coming soon) Cleaned dataset samples
 
-data_flow_end_to_end.md
+---
 
-integration_points.md
+## Next Steps
 
-environment_setup.md
+### Choose the Next Architecture Document to Generate
 
-security_and_access_controls.md
+- [ ] **`data_flow_end_to_end.md`** — Detailed step-by-step data flow walkthrough
+- [ ] **`integration_points.md`** — API endpoints, system connections, integration details
+- [ ] **`environment_setup.md`** — Development, staging, production environment configurations
+- [ ] **`security_and_access_controls.md`** — Comprehensive security policies and procedures
+
+---
+
+**Prepared by Data Engineering / Migration Team**  
+For questions or updates, contact the Data Engineering team.
