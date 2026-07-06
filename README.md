@@ -29,7 +29,8 @@ The solution involved building a robust SQL-based ETL pipeline to extract, clean
 
 📊 **Project Architecture**
 
-<img width="412" height="532" alt="image" src="https://github.com/user-attachments/assets/d2898141-9f95-49c7-b080-036cfb6b1cbc" />
+<img width="377" height="607" alt="image" src="https://github.com/user-attachments/assets/1fcb0f91-697b-4ca7-b368-f13de70ecb30" />
+
 
 
 ⚙️ **ETL Workflow**
